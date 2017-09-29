@@ -1,6 +1,8 @@
 package compareDataTypes;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 import java.io.FileWriter;
@@ -12,6 +14,7 @@ public class CompareLinkedList_HashTable {
 	private ArrayList<String> listOfRandomWordsToFind = new ArrayList<String>();
 	private ArrayList<String> listOfRandomWordsToAdd = new ArrayList<String>();
 	private ArrayList<Records> record = new ArrayList<Records>();
+	private List<Records> structureRecord = Collections.synchronizedList(new ArrayList<Records>());
 
 	private FileWriter logFile;
 	private Date theDate = new Date();
@@ -21,10 +24,13 @@ public class CompareLinkedList_HashTable {
 	private long runtime;
 
 	private final double GROWTH_FACTOR = 1.02;
-	private final int NUMBER_OF_TESTRUNS = 5;
+	private final int NUMBER_OF_TESTRUNS = 20;
 	private final int RANDOM_LIMIT = 10000;
+	
+	private int size;
 
 	public CompareLinkedList_HashTable() {
+
 		// creates the dataset for filling the structure
 		WordList words = new WordList();
 		// brings the data over
@@ -62,7 +68,7 @@ public class CompareLinkedList_HashTable {
 		System.out.println("The program completed in " + programRun / 1000 / 60 + " minutes");
 		try {
 			logFile.write("The program completed in " + programRun / 1000 / 60 + " minutes\n");
-			logFile.write(new SimpleDateFormat("MM-dd-yyyy").format(theDate) + "\n");
+			logFile.write("With Threads" + new SimpleDateFormat("MM-dd-yyyy").format(theDate) + "\n");
 			logFile.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -105,14 +111,30 @@ public class CompareLinkedList_HashTable {
 	}
 
 	public void runPerformanceTest() {
-		int size = 200;
+		 size = 200;
 		for (int i = 0; i < NUMBER_OF_TESTRUNS; i++) {
-			
-			DumbList testList = new DumbList();
-			trackPerformanceAtSize(testList, size);
 
+			DumbList testList = new DumbList();
+			
+			Thread listThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					trackPerformanceAtSize(testList, size);
+				}
+			});
+			listThread.start();
+			
 			HashStructure testHash = new HashStructure();
-			trackPerformanceAtSize(testHash, size);
+			Thread hashThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					trackPerformanceAtSize(testHash, size);		
+				}
+			});
 
 			size = (int) ((int) size * GROWTH_FACTOR);
 
@@ -148,7 +170,7 @@ public class CompareLinkedList_HashTable {
 
 	public void printRecords() {
 
-		for (Records in : record) {
+		for (Records in : structureRecord) {
 			System.out.println(in.toString());
 		}
 	}
