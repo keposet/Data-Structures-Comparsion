@@ -64,6 +64,4 @@ public class Records {
 		return "Records [time(ms)=" + time + ", size=" + size + ", type=" + type + ", iD=" + iD + "]";
 	}
 	
-	
-	
 }
