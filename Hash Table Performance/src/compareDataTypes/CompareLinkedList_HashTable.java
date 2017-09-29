@@ -2,19 +2,23 @@ package compareDataTypes;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class CompareLinkedList_HashTable {
 	private ArrayList<String> listOfWords = new ArrayList<String>();
 	private ArrayList<String> listOfRandomWordsToFind = new ArrayList<String>();
 	private ArrayList<String> listOfRandomWordsToAdd = new ArrayList<String>();
 	private ArrayList<Records> record = new ArrayList<Records>();
+	
+	private FileWriter logFile;
 
 	private long startTime;
 	private long endTime;
 	private long runtime;
 
 	private final double GROWTH_FACTOR = 1.02;
-	private final int NUMBER_OF_TESTRUNS = 200;
+	private final int NUMBER_OF_TESTRUNS = 5;
 	private final int RANDOM_LIMIT = 10000;
 
 	public CompareLinkedList_HashTable() {
@@ -32,13 +36,33 @@ public class CompareLinkedList_HashTable {
 			int randomNumber = ThreadLocalRandom.current().nextInt(listOfWords.size() - 1);
 			listOfRandomWordsToAdd.add(listOfWords.get(randomNumber));
 		}
+		
+		try {
+			logFile = new FileWriter(".\\performanceLogs.txt", true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
 	public void runComparisons() {
+		long programStart, programEnd, programRun =0;
+		
+		programStart = System.currentTimeMillis();
 		runOpsTest();
 		runPerformanceTest();
 		printRecords();
+		programEnd = System.currentTimeMillis();
+		programRun = programEnd - programStart;
+		
+		System.out.println("The program completed in "+programRun/1000/60+" minutes");
+		try {
+			logFile.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void runOpsTest() {
@@ -65,6 +89,13 @@ public class CompareLinkedList_HashTable {
 
 	public void writeLog(String id, String type, long time, int size) {
 		Records newRecord = new Records(id, type, time, size);
+		try {
+			logFile.write(newRecord.toString());
+			logFile.write("\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		record.add(newRecord);
 
 	}
